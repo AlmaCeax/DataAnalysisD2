@@ -20,32 +20,17 @@ public class Writer : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public static void Print(string s)
-    {
-        //instance._Print(s);
-    }
-
-    public static void _Print(string s)
-    {
-        throw new NotImplementedException();
-    }
-
     public void GenerateJsonString<T>(EventList<T> eventsData, string fileName)
     {
         string json = JsonUtility.ToJson(eventsData);
         string path = Application.dataPath + "/Data/" + fileName;
         File.WriteAllText(path, json);
+    }
+
+    public void ReadFile<T>(ref EventList<T> eventsData, string fileName)
+    {
+        string path = Application.dataPath + "/Data/" + fileName;
+        string json = File.ReadAllText(path);
+        eventsData = JsonUtility.FromJson<EventList<T>>(json);
     }
 }
