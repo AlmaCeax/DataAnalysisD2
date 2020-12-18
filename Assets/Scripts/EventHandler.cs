@@ -72,8 +72,9 @@ public class EventHandler : MonoBehaviour
 
     public void FillDeathEventData(Damageable damageable, DamageMessage enemyData)
     {
-        LayerMask playerMask = LayerMask.NameToLayer("Player");
-        if (damageable.gameObject.layer == playerMask)
+        LayerMask enemyMask = LayerMask.NameToLayer("Enemy");
+        LayerMask environmentMask = LayerMask.NameToLayer("Environment");
+        if (enemyData.damager.gameObject.layer == enemyMask || enemyData.damager.gameObject.layer == environmentMask)
         {
             DeathEvent newDeathEvent = new DeathEvent();
             newDeathEvent.eventID = ++evendIdCount;
