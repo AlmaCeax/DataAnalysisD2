@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
 
 public class Writer : MonoBehaviour
 {
@@ -39,5 +40,12 @@ public class Writer : MonoBehaviour
     public static void _Print(string s)
     {
         throw new NotImplementedException();
+    }
+
+    public void GenerateJsonString<T>(EventList<T> eventsData, string fileName)
+    {
+        string json = JsonUtility.ToJson(eventsData);
+        string path = Application.dataPath + "/Data/" + fileName;
+        File.WriteAllText(path, json);
     }
 }

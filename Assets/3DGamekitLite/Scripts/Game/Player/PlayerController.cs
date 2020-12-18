@@ -2,6 +2,7 @@ using UnityEngine;
 using Gamekit3D.Message;
 using System.Collections;
 using UnityEngine.XR.WSA;
+using UnityEngine.Events;
 
 namespace Gamekit3D
 {
@@ -96,6 +97,10 @@ namespace Gamekit3D
         readonly int m_HashEllenCombo3 = Animator.StringToHash("EllenCombo3");
         readonly int m_HashEllenCombo4 = Animator.StringToHash("EllenCombo4");
         readonly int m_HashEllenDeath = Animator.StringToHash("EllenDeath");
+
+        //Events
+        public delegate void JumpDelegate(PlayerController playerController);
+        public static JumpDelegate myOnJump;
 
         // Tags
         readonly int m_HashBlockInput = Animator.StringToHash("BlockInput");
@@ -275,7 +280,9 @@ namespace Gamekit3D
         {
             // If jump is not currently held and Ellen is on the ground then she is ready to jump.
             if (!m_Input.JumpInput && m_IsGrounded)
+            {
                 m_ReadyToJump = true;
+            }
 
             if (m_IsGrounded)
             {
@@ -289,6 +296,7 @@ namespace Gamekit3D
                     m_VerticalSpeed = jumpSpeed;
                     m_IsGrounded = false;
                     m_ReadyToJump = false;
+                    myOnJump.Invoke(this);
                 }
             }
             else
