@@ -8,7 +8,7 @@ public class EventHandler : MonoBehaviour
 {
     EventList<KillEvent> killEvents;
     EventList<DeathEvent> deathEvents;
-    EventList<PositionEvent> positionEvents;
+    public EventList<PositionEvent> positionEvents;
     EventList<LifeLostEvent> lifeLostEvents;
     EventList<BoxDestroyedEvent> boxDestroyedEvents;
     EventList<JumpEvent> jumpEvents;
