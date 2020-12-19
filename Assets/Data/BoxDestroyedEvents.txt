@@ -1,1 +1,1 @@
-{"events":[]}
+{"events":[{"eventID":566,"position":{"x":26.067800521850587,"y":1.210000991821289,"z":24.994281768798829},"pdata":{"playerID":103421694,"playerName":"","playerSex":"","playerCountry":"","sessionId":0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":0.0},"timeStamp":58.47999954223633}]}

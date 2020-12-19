@@ -6,6 +6,9 @@ using UnityEngine;
 public class EventData
 {
     public uint eventID;
+    public Vector3 position;
+    public PlayerData pdata;
+    public Quaternion rotation;
 }
 
 [System.Serializable]
@@ -21,9 +24,6 @@ public struct PlayerData
 [System.Serializable]
 public class KillEvent : EventData
 {
-    public PlayerData pdata;
-    public Vector3 position;
-    public Quaternion rotation;
     public string enemyType;
     public float timeStamp;
 }
@@ -31,9 +31,6 @@ public class KillEvent : EventData
 [System.Serializable]
 public class DeathEvent : EventData
 {
-    public PlayerData pdata;
-    public Vector3 position;
-    public Quaternion rotation;
     public string enemyType;
     public float timeStamp;
 }
@@ -41,17 +38,12 @@ public class DeathEvent : EventData
 [System.Serializable]
 public class PositionEvent : EventData
 {
-    public PlayerData pdata;
-    public Vector3 position;
-    public Quaternion rotation;
     public float timeStamp;
 }
 
 [System.Serializable]
 public class LifeLostEvent : EventData
 {
-    public PlayerData pdata;
-    public Vector3 position;
     public string enemyType;
     public float timeStamp;
 }
@@ -59,16 +51,12 @@ public class LifeLostEvent : EventData
 [System.Serializable]
 public class BoxDestroyedEvent : EventData
 {
-    public PlayerData pdata;
-    public Vector3 position;
     public float timeStamp;
 }
 
 [System.Serializable]
 public class JumpEvent : EventData
 {
-    public PlayerData pdata;
-    public Vector3 position;
     public float timeStamp;
 }
 

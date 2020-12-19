@@ -6,12 +6,12 @@ using static Gamekit3D.Damageable;
 
 public class EventHandler : MonoBehaviour
 {
-    EventList<KillEvent> killEvents;
-    EventList<DeathEvent> deathEvents;
+    public EventList<KillEvent> killEvents;
+    public EventList<DeathEvent> deathEvents;
     public EventList<PositionEvent> positionEvents;
-    EventList<LifeLostEvent> lifeLostEvents;
-    EventList<BoxDestroyedEvent> boxDestroyedEvents;
-    EventList<JumpEvent> jumpEvents;
+    public EventList<LifeLostEvent> lifeLostEvents;
+    public EventList<BoxDestroyedEvent> boxDestroyedEvents;
+    public EventList<JumpEvent> jumpEvents;
 
     uint evendIdCount = 0;
     public GameObject player;
@@ -161,7 +161,7 @@ public class EventHandler : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
             FillPositionEvent();
         }
     }

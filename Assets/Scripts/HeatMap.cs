@@ -1,57 +1,107 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class HeatMap : MonoBehaviour
 {
     public int gridLengthX = 135;
     public int gridLengthY = 80;
+    public enum HeatMapType { CUBE, ARROW};
+    public HeatMapType heatMapType = HeatMapType.CUBE;
+
+    public enum EventType { KILLS, DEATHS, POSITION, LIFELOST, BOXES, JUMPS };
+    public EventType eventType = EventType.POSITION;
+
+    public Gradient colorGradient;
+    public int maxCounts = 100;
+
     private int defaultLengthX = 135;
     private int defaultLengthY = 80;
 
     private Vector2 mapOffset;
 
-    public int cellSizeX = 1;
-    public int cellSizeY = 1;
+    float cellSizeX;
+    float cellSizeY;
 
     int[,] eventCounts;
+    float[,] rotations;
 
     public EventHandler eventHandler;
 
     public GameObject cubePrefab;
     public GameObject arrowPrefab;
 
-    public Gradient colorGradient;
+    List<GameObject> spawnedObjects;
 
-    public int maxCounts = 100;
+
 
     private void Start()
     {
         eventCounts = new int[gridLengthX, gridLengthY];
+        rotations = new float[gridLengthX, gridLengthY];
+        spawnedObjects = new List<GameObject>();
     }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            CountEvents();
+            ClearHeatMap();
+
+            switch (eventType)
+            {
+                case EventType.KILLS:
+                    CountEvents(eventHandler.killEvents.events.Cast<EventData>().ToList());
+                    break;
+                case EventType.DEATHS:
+                    CountEvents(eventHandler.deathEvents.events.Cast<EventData>().ToList());
+                    break;
+                case EventType.POSITION:
+                    CountEvents(eventHandler.positionEvents.events.Cast<EventData>().ToList());
+                    break;
+                case EventType.LIFELOST:
+                    CountEvents(eventHandler.lifeLostEvents.events.Cast<EventData>().ToList());
+                    break;
+                case EventType.BOXES:
+                    CountEvents(eventHandler.boxDestroyedEvents.events.Cast<EventData>().ToList());
+                    break;
+                case EventType.JUMPS:
+                    CountEvents(eventHandler.jumpEvents.events.Cast<EventData>().ToList());
+                    break;
+                default:
+                    break;
+            }
+            VisualizeEvents();
         }
     }
-    void CountEvents()
+
+
+    void ClearHeatMap()
     {
-        cellSizeX = defaultLengthX / gridLengthX;
-        cellSizeY = defaultLengthY / gridLengthY;
+        foreach (var item in spawnedObjects)
+        {
+            Destroy(item);
+        }
+        spawnedObjects.Clear();
 
-        mapOffset = new Vector2(30, 0);
+        Array.Clear(eventCounts, 0, eventCounts.Length);
+        Array.Clear(rotations, 0, rotations.Length);
+    }
 
-        for (int i = 0; i < eventHandler.positionEvents.events.Count; ++i)
+    void CountEvents(List<EventData> eventList)
+    {
+        cellSizeX = (float)defaultLengthX / (float)gridLengthX;
+        cellSizeY = (float)defaultLengthY / (float)gridLengthY;
+        mapOffset = new Vector2(30 - (defaultLengthX * 0.5f), 0 - (defaultLengthY * 0.5f));
+
+        for (int i = 0; i < eventList.Count; ++i)
         {
             int xGrid, yGrid;
-            positionToTileSpace(eventHandler.positionEvents.events[i].position.x, eventHandler.positionEvents.events[i].position.z, out xGrid, out yGrid);
+            positionToTileSpace(eventList[i].position.x, eventList[i].position.z, out xGrid, out yGrid);
             eventCounts[xGrid, yGrid]++;
+            rotations[xGrid, yGrid] = eventList[i].rotation.eulerAngles.y;
         }
-
-        VisualizeEvents();
     }
 
     void VisualizeEvents()
@@ -62,7 +112,10 @@ public class HeatMap : MonoBehaviour
             {
                 if(eventCounts[i, j ] > 0)
                 {
-                    SpawnCube(i, j, eventCounts[i, j]);
+                    if(heatMapType == HeatMapType.CUBE)
+                        SpawnCube(i, j, eventCounts[i, j]);
+                    else
+                        SpawnArrow(i, j, eventCounts[i, j], rotations[i,j]);
                 }
             }
         }
@@ -74,9 +127,25 @@ public class HeatMap : MonoBehaviour
         tileSpaceToPosition(x, y, out position.x, out position.z);
         position.y = GetHeight(position.x, position.z);
         GameObject cube = Instantiate(cubePrefab, position, Quaternion.identity);
+        cube.transform.localScale = new Vector3(cellSizeX, 1, cellSizeY);
         float f = Mathf.Clamp01((float)counts / maxCounts);
         Color c = colorGradient.Evaluate(f);
         cube.GetComponent<HeatMapCube>().SetColor(c);
+
+        spawnedObjects.Add(cube);
+    }
+
+    private void SpawnArrow(int x, int y, int counts, float rotation)
+    {
+        Vector3 position;
+        tileSpaceToPosition(x, y, out position.x, out position.z);
+        position.y = GetHeight(position.x, position.z);
+        GameObject arrow = Instantiate(arrowPrefab, position, Quaternion.Euler(new Vector3(90, 0, -rotation)));
+        float f = Mathf.Clamp01((float)counts / maxCounts);
+        Color c = colorGradient.Evaluate(f);
+        arrow.GetComponent<HeatMapCube>().SetColor(c);
+
+        spawnedObjects.Add(arrow);
     }
 
     private float GetHeight(float x, float y)
