@@ -87,7 +87,7 @@ public class EventHandler : MonoBehaviour
     {
         LayerMask enemyMask = LayerMask.NameToLayer("Enemy");
         LayerMask environmentMask = LayerMask.NameToLayer("Environment");
-        if (enemyData.damager.gameObject.layer == enemyMask || enemyData.damager.gameObject.layer == environmentMask || enemyData.damager.GetComponent<GrenadierGrenade>())
+        if (enemyData.damager.gameObject.layer == enemyMask || enemyData.damager.gameObject.layer == environmentMask || enemyData.damager.GetComponent<GrenadierGrenade>() || enemyData.damager.transform.parent.gameObject.layer == enemyMask)
         {
             DeathEvent newDeathEvent = new DeathEvent();
             newDeathEvent.pdata = playerData;
