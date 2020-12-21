@@ -45,15 +45,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridLengthX: 135
   gridLengthY: 80
-  cellSizeX: 1
-  cellSizeY: 1
-  eventHandler: {fileID: 0}
-  cubePrefab: {fileID: 0}
-  arrowPrefab: {fileID: 0}
+  heatMapType: 1
+  eventType: 2
   colorGradient:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
-    key1: {r: 1, g: 1, b: 1, a: 1}
+    key0: {r: 0.2805456, g: 1, b: 0, a: 1}
+    key1: {r: 1, g: 0, b: 0, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -79,4 +76,9 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  maxCounts: 100
+  maxCounts: 25
+  cubePrefab: {fileID: 1362718860699210342, guid: cb926fd6816ef5e43aeb24c6f0145307,
+    type: 3}
+  arrowPrefab: {fileID: 3870588525469805965, guid: 766a25459d546b4449418d5e4870964a,
+    type: 3}
+  eventHandler: {fileID: 0}

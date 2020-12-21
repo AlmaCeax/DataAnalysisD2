@@ -18,7 +18,7 @@ public struct PlayerData
     public string playerName;
     public string playerSex;
     public string playerCountry;
-    public uint sessionId;
+    public string sessionId;
 }
 
 [System.Serializable]

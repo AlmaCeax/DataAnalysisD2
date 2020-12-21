@@ -20,17 +20,20 @@ public class Writer : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    public void GenerateJsonString<T>(EventList<T> eventsData, string fileName)
+    public void WriteEventFile<T>(EventList<T> eventsData, string fileName)
     {
         string json = JsonUtility.ToJson(eventsData);
         string path = Application.dataPath + "/Data/" + fileName;
         File.WriteAllText(path, json);
     }
 
-    public void ReadFile<T>(ref EventList<T> eventsData, string fileName)
+    public void ReadEventFile<T>(ref EventList<T> eventsData, string fileName)
     {
         string path = Application.dataPath + "/Data/" + fileName;
-        string json = File.ReadAllText(path);
-        eventsData = JsonUtility.FromJson<EventList<T>>(json);
+        if(File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            eventsData = JsonUtility.FromJson<EventList<T>>(json);
+        }
     }
 }

@@ -4,8 +4,11 @@ using UnityEngine;
 using Gamekit3D;
 using static Gamekit3D.Damageable;
 
+
 public class EventHandler : MonoBehaviour
 {
+    long MaxValue = 9223372036854775807;
+
     public EventList<KillEvent> killEvents;
     public EventList<DeathEvent> deathEvents;
     public EventList<PositionEvent> positionEvents;
@@ -13,11 +16,26 @@ public class EventHandler : MonoBehaviour
     public EventList<BoxDestroyedEvent> boxDestroyedEvents;
     public EventList<JumpEvent> jumpEvents;
 
+    public List<string> sessions;
+
     uint evendIdCount = 0;
     public GameObject player;
     PlayerController playerController;
     PlayerData playerData;
-    Hash128 hash;
+
+    public static EventHandler instance = null;
+
+    void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(this.gameObject);
+            return;//Avoid doing anything else
+        }
+
+        instance = this;
+        DontDestroyOnLoad(this.gameObject);
+    }
 
     private void OnEnable()
     {
@@ -43,6 +61,13 @@ public class EventHandler : MonoBehaviour
     void Start()
     {
         playerController = player.GetComponent<PlayerController>();
+
+        Initialize();
+    }
+
+
+    void Initialize()
+    {
         killEvents = new EventList<KillEvent>();
         deathEvents = new EventList<DeathEvent>();
         positionEvents = new EventList<PositionEvent>();
@@ -50,21 +75,46 @@ public class EventHandler : MonoBehaviour
         boxDestroyedEvents = new EventList<BoxDestroyedEvent>();
         jumpEvents = new EventList<JumpEvent>();
 
+        Writer.instance.ReadEventFile(ref killEvents, "KillEvents.json");
+        Writer.instance.ReadEventFile(ref deathEvents, "DeathEvents.json");
+        Writer.instance.ReadEventFile(ref positionEvents, "PositionEvents.json");
+        Writer.instance.ReadEventFile(ref lifeLostEvents, "LifeLostEvents.json");
+        Writer.instance.ReadEventFile(ref boxDestroyedEvents, "BoxDestroyedEvents.json");
+        Writer.instance.ReadEventFile(ref jumpEvents, "JumpEvents.json");
+
+        //Generate Session ID
+        playerData.sessionId = Random.Range(0, MaxValue).GetHashCode().ToString();
+        PlayerPrefs.SetString("sessionID", playerData.sessionId);
         playerData.playerID = PlayerPrefs.GetString("playerId").GetHashCode() & 0xfffffff;
         playerData.playerName = PlayerPrefs.GetString("playerId");
         playerData.playerSex = PlayerPrefs.GetString("playerSex");
         playerData.playerCountry = PlayerPrefs.GetString("playerCountry");
+
+        CountSessions();
+    }
+
+    void CountSessions()
+    {
+        sessions.Add(playerData.sessionId);
+
+        foreach (var item in positionEvents.events)
+        {
+            if(!sessions.Contains(item.pdata.sessionId))
+            {
+                sessions.Add(item.pdata.sessionId);
+            }
+        }
     }
 
     // Update is called once per frame
     void OnApplicationQuit()
     {
-        Writer.instance.GenerateJsonString(killEvents, "KillEvents.txt");
-        Writer.instance.GenerateJsonString(deathEvents, "DeathEvents.txt");
-        Writer.instance.GenerateJsonString(positionEvents, "PositionEvents.txt");
-        Writer.instance.GenerateJsonString(lifeLostEvents, "LifeLostEvents.txt");
-        Writer.instance.GenerateJsonString(boxDestroyedEvents, "BoxDestroyedEvents.txt");
-        Writer.instance.GenerateJsonString(jumpEvents, "JumpEvents.txt");
+        Writer.instance.WriteEventFile(killEvents, "KillEvents.json");
+        Writer.instance.WriteEventFile(deathEvents, "DeathEvents.json");
+        Writer.instance.WriteEventFile(positionEvents, "PositionEvents.json");
+        Writer.instance.WriteEventFile(lifeLostEvents, "LifeLostEvents.json");
+        Writer.instance.WriteEventFile(boxDestroyedEvents, "BoxDestroyedEvents.json");
+        Writer.instance.WriteEventFile(jumpEvents, "JumpEvents.json");
     }
 
     public void FillKillEventData(Damageable damageable, DamageMessage enemyData) {

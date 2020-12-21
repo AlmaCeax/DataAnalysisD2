@@ -6,16 +6,22 @@ using UnityEngine;
 
 public class HeatMap : MonoBehaviour
 {
+    [Header("Grid Options")]
     public int gridLengthX = 135;
     public int gridLengthY = 80;
-    public enum HeatMapType { CUBE, ARROW};
-    public HeatMapType heatMapType = HeatMapType.CUBE;
 
+    public enum HeatMapType { CUBE, ARROW };
     public enum EventType { KILLS, DEATHS, POSITION, LIFELOST, BOXES, JUMPS };
-    public EventType eventType = EventType.POSITION;
 
+    [Header("Data Visualization Options")]
+    public HeatMapType heatMapType = HeatMapType.CUBE;
+    public EventType eventType = EventType.POSITION;
     public Gradient colorGradient;
     public int maxCounts = 100;
+
+    [Header("Essentials")]
+    public GameObject cubePrefab;
+    public GameObject arrowPrefab;
 
     private int defaultLengthX = 135;
     private int defaultLengthY = 80;
@@ -27,15 +33,10 @@ public class HeatMap : MonoBehaviour
 
     int[,] eventCounts;
     float[,] rotations;
-
-    public EventHandler eventHandler;
-
-    public GameObject cubePrefab;
-    public GameObject arrowPrefab;
+    [HideInInspector]
+    public int sessionChoice = 0;
 
     List<GameObject> spawnedObjects;
-
-
 
     private void Start()
     {
@@ -43,41 +44,38 @@ public class HeatMap : MonoBehaviour
         rotations = new float[gridLengthX, gridLengthY];
         spawnedObjects = new List<GameObject>();
     }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            ClearHeatMap();
 
-            switch (eventType)
-            {
-                case EventType.KILLS:
-                    CountEvents(eventHandler.killEvents.events.Cast<EventData>().ToList());
-                    break;
-                case EventType.DEATHS:
-                    CountEvents(eventHandler.deathEvents.events.Cast<EventData>().ToList());
-                    break;
-                case EventType.POSITION:
-                    CountEvents(eventHandler.positionEvents.events.Cast<EventData>().ToList());
-                    break;
-                case EventType.LIFELOST:
-                    CountEvents(eventHandler.lifeLostEvents.events.Cast<EventData>().ToList());
-                    break;
-                case EventType.BOXES:
-                    CountEvents(eventHandler.boxDestroyedEvents.events.Cast<EventData>().ToList());
-                    break;
-                case EventType.JUMPS:
-                    CountEvents(eventHandler.jumpEvents.events.Cast<EventData>().ToList());
-                    break;
-                default:
-                    break;
-            }
-            VisualizeEvents();
+    public void CreateMap()
+    {
+        ClearHeatMap();
+
+        switch (eventType)
+        {
+            case EventType.KILLS:
+                CountEvents(EventHandler.instance.killEvents.events.Cast<EventData>().ToList());
+                break;
+            case EventType.DEATHS:
+                CountEvents(EventHandler.instance.deathEvents.events.Cast<EventData>().ToList());
+                break;
+            case EventType.POSITION:
+                CountEvents(EventHandler.instance.positionEvents.events.Cast<EventData>().ToList());
+                break;
+            case EventType.LIFELOST:
+                CountEvents(EventHandler.instance.lifeLostEvents.events.Cast<EventData>().ToList());
+                break;
+            case EventType.BOXES:
+                CountEvents(EventHandler.instance.boxDestroyedEvents.events.Cast<EventData>().ToList());
+                break;
+            case EventType.JUMPS:
+                CountEvents(EventHandler.instance.jumpEvents.events.Cast<EventData>().ToList());
+                break;
+            default:
+                break;
         }
+        VisualizeEvents();
     }
 
-
-    void ClearHeatMap()
+    public void ClearHeatMap()
     {
         foreach (var item in spawnedObjects)
         {
@@ -97,10 +95,13 @@ public class HeatMap : MonoBehaviour
 
         for (int i = 0; i < eventList.Count; ++i)
         {
-            int xGrid, yGrid;
-            positionToTileSpace(eventList[i].position.x, eventList[i].position.z, out xGrid, out yGrid);
-            eventCounts[xGrid, yGrid]++;
-            rotations[xGrid, yGrid] = eventList[i].rotation.eulerAngles.y;
+            if(eventList[i].pdata.sessionId == EventHandler.instance.sessions[sessionChoice])
+            {
+                int xGrid, yGrid;
+                positionToTileSpace(eventList[i].position.x, eventList[i].position.z, out xGrid, out yGrid);
+                eventCounts[xGrid, yGrid]++;
+                rotations[xGrid, yGrid] = eventList[i].rotation.eulerAngles.y;
+            }
         }
     }
 
